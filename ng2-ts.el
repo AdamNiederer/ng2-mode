@@ -63,6 +63,7 @@
     (,ng2-ts-var-regex (2 font-lock-variable-name-face))
     (,(regexp-opt ng2-ts-decorator-keywords) . font-lock-builtin-face)))
 
+;;;###autoload
 (define-derived-mode ng2-ts-mode typescript-mode
   (setq tab-width ng2-ts-tab-width)
   (setq major-mode 'ng2-ts-mode)
@@ -70,7 +71,9 @@
   (run-hooks 'ng2-ts-mode-hook)
   (font-lock-add-keywords nil ng2-ts-font-lock-keywords))
 
+;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.component.ts\\'" . ng2-ts-mode))
+;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.service.ts\\'" . ng2-ts-mode))
 
 (provide 'ng2-ts-mode)

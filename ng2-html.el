@@ -71,6 +71,7 @@
     (,ng2-html-pipe-regex . (1 font-lock-keyword-face t))
     (,ng2-html-pipe-regex . (2 font-lock-function-name-face t))))
 
+;;;###autoload
 (define-derived-mode ng2-html-mode html-mode
   (setq tab-width ng2-html-tab-width)
   (setq major-mode 'ng2-html-mode)
@@ -78,6 +79,7 @@
   (run-hooks 'ng2-html-mode-hook)
   (font-lock-add-keywords nil ng2-html-font-lock-keywords))
 
+;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.component.html\\'" . ng2-html-mode))
 
 (provide 'ng2-html-mode)
