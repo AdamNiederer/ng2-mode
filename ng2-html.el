@@ -1,4 +1,4 @@
-;;; ng2-html.el - Major mode for editing Angular 2 templates
+;;; ng2-html.el --- Major mode for editing Angular 2 templates
 
 ;; Copyright 2016 Adam Niederer
 
@@ -29,6 +29,8 @@
 ;;
 ;; Exported names start with "ng2-html-"; private names start with
 ;; "ng2-html--".
+
+;;; Code:
 
 (defgroup angular2-html nil
   "Major mode for AngularJS 2 template files."
@@ -79,4 +81,4 @@
 (add-to-list 'auto-mode-alist '("\\.component.html\\'" . ng2-html-mode))
 
 (provide 'ng2-html-mode)
-;;; ng2-html-mode.el ends here
+;;; ng2-html.el ends here

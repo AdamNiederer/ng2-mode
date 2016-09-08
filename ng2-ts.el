@@ -1,4 +1,4 @@
-;;; ng2-ts.el - Major mode for editing Angular 2 TypeScript
+;;; ng2-ts.el --- Major mode for editing Angular 2 TypeScript
 
 ;; Copyright 2016 Adam Niederer
 
@@ -29,6 +29,10 @@
 ;;
 ;; Exported names start with "ng2-ts-"; private names start with
 ;; "ng2-ts--".
+
+;;; Code:
+
+(require 'typescript-mode)
 
 (defgroup angular2-ts nil
   "Major mode for AngularJS 2 TypeScript files."
@@ -70,4 +74,4 @@
 (add-to-list 'auto-mode-alist '("\\.service.ts\\'" . ng2-ts-mode))
 
 (provide 'ng2-ts-mode)
-;;; ng2-ts-mode.el ends here
+;;; ng2-ts.el ends here
