@@ -21,7 +21,7 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-;;; Commentary
+;;; Commentary:
 
 ;; The main features of the modes are syntax highlighting (enabled with
 ;; `font-lock-mode' or `global-font-lock-mode'), and easy switching
@@ -64,6 +64,7 @@
   (interactive)
   (find-file (ng2--counterpart-name (buffer-file-name))))
 
+;;;###autoload
 (defun ng2-mode ()
   "Activates the appropriate Angular 2-related mode for the buffer."
   (interactive)
@@ -76,4 +77,4 @@
        (t (message "This doesn't appear to be an Angular2 component or service."))))))
 
 (provide 'ng2-mode)
-;;; ng2-ts.el ends here
+;;; ng2-mode.el ends here
