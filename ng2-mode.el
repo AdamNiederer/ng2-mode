@@ -40,7 +40,7 @@
   "Major mode for AngularJS 2 files"
   :prefix "ng2-"
   :group 'languages
-  :link '(url-link :tag "Github" "https://github.com/AdamNiederer/ng2-ts-mode")
+  :link '(url-link :tag "Github" "https://github.com/AdamNiederer/ng2-mode")
   :link '(emacs-commentary-link :tag "Commentary" "ng2-mode"))
 
 (defun ng2--counterpart-name (name)
