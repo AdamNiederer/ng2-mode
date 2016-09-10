@@ -23,7 +23,7 @@
 
 ;;; Commentary
 
-;; The main features of mode is syntactic highlighting (enabled with
+;; The main features of this mode are syntax highlighting (enabled with
 ;; `font-lock-mode' or `global-font-lock-mode'), and html-mode
 ;; integration
 ;;
@@ -31,13 +31,6 @@
 ;; "ng2-html--".
 
 ;;; Code:
-
-(defgroup angular2-html nil
-  "Major mode for AngularJS 2 template files."
-  :prefix "ng2-html-"
-  :group 'languages
-  :link '(url-link :tag "Github" "https://github.com/AdamNiederer/ng2-mode")
-  :link '(emacs-commentary-link :tag "Commentary" "ng2-mode"))
 
 (defconst ng2-html-var-regex
   "#\\(.*?\\)=")
@@ -59,8 +52,15 @@
 
 (defcustom ng2-html-tab-width 2
   "Tab width for ng2-html-mode"
-  :group 'angular2-html
+  :group 'ng2
   :type 'integer)
+
+(defun ng2-html-goto-binding ()
+  "Opens the corresponding component TypeScript file, then places the cursor at the function corresponding to the binding"
+  (interactive)
+  (let ((fn-name (word-at-point)))
+    (ng2-open-counterpart)
+    (ng2-ts-goto-fn fn-name)))
 
 (defvar ng2-html-font-lock-keywords
   `((,ng2-html-var-regex (1 font-lock-variable-name-face))
@@ -71,16 +71,23 @@
     (,ng2-html-pipe-regex . (1 font-lock-keyword-face t))
     (,ng2-html-pipe-regex . (2 font-lock-function-name-face t))))
 
+(defvar ng2-html-map
+  (let ((map (make-keymap)))
+    (define-key map (kbd "C-c b") 'ng2-html-goto-binding)
+    (define-key map (kbd "C-c c") 'ng2-open-counterpart)
+    map)
+  "Keymap for ng2-html-mode")
+
 ;;;###autoload
-(define-derived-mode ng2-html-mode html-mode
+(define-derived-mode ng2-html-mode
+  html-mode "ng2-html"
+  "Major mode for Angular 2 templates"
+  (use-local-map ng2-html-map)
   (setq tab-width ng2-html-tab-width)
-  (setq major-mode 'ng2-html-mode)
-  (setq mode-name "ng2-html")
-  (run-hooks 'ng2-html-mode-hook)
   (font-lock-add-keywords nil ng2-html-font-lock-keywords))
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.component.html\\'" . ng2-html-mode))
 
-(provide 'ng2-html-mode)
+(provide 'ng2-html)
 ;;; ng2-html.el ends here

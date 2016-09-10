@@ -23,7 +23,7 @@
 
 ;;; Commentary
 
-;; The main features of mode are syntactic highlighting (enabled with
+;; The main features of this mode are syntax highlighting (enabled with
 ;; `font-lock-mode' or `global-font-lock-mode'), and typescript-mode
 ;; integration
 ;;
@@ -31,15 +31,6 @@
 ;; "ng2-ts--".
 
 ;;; Code:
-
-(require 'typescript-mode)
-
-(defgroup angular2-ts nil
-  "Major mode for AngularJS 2 TypeScript files."
-  :prefix "ng2-ts-"
-  :group 'languages
-  :link '(url-link :tag "Github" "https://github.com/AdamNiederer/ng2-ts-mode")
-  :link '(emacs-commentary-link :tag "Commentary" "ng2-mode"))
 
 (defconst ng2-ts-decorator-keywords
   '("@Component"
@@ -51,24 +42,52 @@
   "${.*?}")
 
 (defconst ng2-ts-var-regex
-  "\\([^ ]\\)\\(\\<\\w*\\>\\)\\( *[=:] *\\)")
+  "[^?/.] \\(\\w+\\) *[=:]")
+
+(defconst ng2-ts-fn-regex
+  "\\(\\w+\\)\(.*\).*{")
+
+(defconst ng2-ts-class-regex
+  "class \\(\\w+\\)")
+
+(defconst ng2-ts-lambda-regex
+  "\\(\\w+\\) *\\(=>\\)")
+
+(defconst ng2-ts-generic-regex
+  "<\\(\\w+\\)\\(\\[\\]\\)?>")
 
 (defcustom ng2-ts-tab-width 2
   "Tab width for ng2-ts-mode"
-  :group 'angular2-ts
+  :group 'ng2
   :type 'integer)
+
+(defun ng2-ts-goto-fn (fn-name)
+  "Places the point on the function called fn-name"
+  (beginning-of-buffer)
+  (search-forward-regexp (format "\\(\\%s\\)\(.*\).*{" fn-name)))
+
+(defvar ng2-ts-map
+  (let ((map (make-keymap)))
+    (define-key map (kbd "C-c c") 'ng2-open-counterpart)
+    map)
+  "Keymap for ng2-ts-mode")
 
 (defvar ng2-ts-font-lock-keywords
   `((,ng2-ts-interp-regex . (0 font-lock-constant-face t))
-    (,ng2-ts-var-regex (2 font-lock-variable-name-face))
+    (,ng2-ts-var-regex (1 font-lock-variable-name-face))
+    (,ng2-ts-class-regex (1 font-lock-type-face))
+    (,ng2-ts-fn-regex (1 font-lock-function-name-face))
+    (,ng2-ts-generic-regex (1 font-lock-type-face))
+    (,ng2-ts-lambda-regex (1 font-lock-variable-name-face))
+    (,ng2-ts-lambda-regex (2 font-lock-function-name-face))
     (,(regexp-opt ng2-ts-decorator-keywords) . font-lock-builtin-face)))
 
 ;;;###autoload
-(define-derived-mode ng2-ts-mode typescript-mode
+(define-derived-mode ng2-ts-mode
+  typescript-mode "ng2-ts"
+  "Major mode for Angular 2 TypeScript"
+  (use-local-map ng2-ts-map)
   (setq tab-width ng2-ts-tab-width)
-  (setq major-mode 'ng2-ts-mode)
-  (setq mode-name "ng2-ts")
-  (run-hooks 'ng2-ts-mode-hook)
   (font-lock-add-keywords nil ng2-ts-font-lock-keywords))
 
 ;;;###autoload
@@ -76,5 +95,5 @@
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.service.ts\\'" . ng2-ts-mode))
 
-(provide 'ng2-ts-mode)
+(provide 'ng2-ts)
 ;;; ng2-ts.el ends here
