@@ -33,13 +33,13 @@
 ;;; Code:
 
 (defconst ng2-html-var-regex
-  "#\\(.*?\\)=")
+  "#\\(\\w+\\)")
 
 (defconst ng2-html-interp-regex
   "{{.*?}}")
 
 (defconst ng2-html-directive-regex
-  "\*\\(.*?\\)=")
+  "\*\\(.*?\\)[\"= ]")
 
 (defconst ng2-html-binding-regex
   "\\(\\[.*?\\]\\)=\\(\".*?\"\\)")
