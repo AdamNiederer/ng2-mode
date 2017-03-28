@@ -1,7 +1,7 @@
 ![GPLv3](https://img.shields.io/badge/license-GPLv3-brightgreen.svg)
 [![MELPA](http://melpa.org/packages/ng2-mode-badge.svg)](http://melpa.org/#/ng2-mode)
 # ng2-mode
-The Angular 2 support Emacs needs
+The Angular 2+ support Emacs needs
 ![Screenshot](example.png)
 ## Features
 - Syntax highlighting
