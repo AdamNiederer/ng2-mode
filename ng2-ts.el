@@ -21,7 +21,7 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-;;; Commentary
+;;; Commentary:
 
 ;; The main features of this mode are syntax highlighting (enabled with
 ;; `font-lock-mode' or `global-font-lock-mode'), and typescript-mode
@@ -56,21 +56,16 @@
 (defconst ng2-ts-generic-regex
   "<\\(\\w+\\)\\(\\[\\]\\)?>")
 
-(defcustom ng2-ts-tab-width 2
-  "Tab width for ng2-ts-mode"
-  :group 'ng2
-  :type 'integer)
-
 (defun ng2-ts-goto-fn (fn-name)
-  "Places the point on the function called fn-name"
-  (beginning-of-buffer)
+  "Places the point on the function called FN-NAME."
+  (goto-char (point-min))
   (search-forward-regexp (format "\\(\\%s\\)\(.*\).*{" fn-name)))
 
 (defvar ng2-ts-map
   (let ((map (make-keymap)))
     (define-key map (kbd "C-c c") 'ng2-open-counterpart)
     map)
-  "Keymap for ng2-ts-mode")
+  "Keymap for ng2-ts-mode.")
 
 (defvar ng2-ts-font-lock-keywords
   `((,ng2-ts-interp-regex . (0 font-lock-constant-face t))
@@ -87,7 +82,6 @@
   typescript-mode "ng2-ts"
   "Major mode for Angular 2 TypeScript"
   (use-local-map ng2-ts-map)
-  (setq tab-width ng2-ts-tab-width)
   (font-lock-add-keywords nil ng2-ts-font-lock-keywords))
 
 ;;;###autoload

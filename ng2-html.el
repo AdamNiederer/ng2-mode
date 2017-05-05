@@ -21,7 +21,7 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-;;; Commentary
+;;; Commentary:
 
 ;; The main features of this mode are syntax highlighting (enabled with
 ;; `font-lock-mode' or `global-font-lock-mode'), and html-mode
@@ -50,13 +50,8 @@
 (defconst ng2-html-pipe-regex
   "{{.*?\\(|\\) *\\(.*?\\) *}}")
 
-(defcustom ng2-html-tab-width 2
-  "Tab width for ng2-html-mode"
-  :group 'ng2
-  :type 'integer)
-
 (defun ng2-html-goto-binding ()
-  "Opens the corresponding component TypeScript file, then places the cursor at the function corresponding to the binding"
+  "Opens the corresponding component TypeScript file, then places the cursor at the function corresponding to the binding."
   (interactive)
   (let ((fn-name (word-at-point)))
     (ng2-open-counterpart)
@@ -76,14 +71,13 @@
     (define-key map (kbd "C-c b") 'ng2-html-goto-binding)
     (define-key map (kbd "C-c c") 'ng2-open-counterpart)
     map)
-  "Keymap for ng2-html-mode")
+  "Keymap for ng2-html-mode.")
 
 ;;;###autoload
 (define-derived-mode ng2-html-mode
   html-mode "ng2-html"
   "Major mode for Angular 2 templates"
   (use-local-map ng2-html-map)
-  (setq tab-width ng2-html-tab-width)
   (font-lock-add-keywords nil ng2-html-font-lock-keywords))
 
 ;;;###autoload

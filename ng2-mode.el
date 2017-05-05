@@ -43,24 +43,25 @@
   :link '(url-link :tag "Github" "https://github.com/AdamNiederer/ng2-mode")
   :link '(emacs-commentary-link :tag "Commentary" "ng2-mode"))
 
-(defun ng2--counterpart-name (name)
-  "Return the file name of this file's counterpart. If a file has no counterpart, returns the name of the file. Ex. kek.component.html <-> kek.component.ts"
-  (when (not (ng2--is-component name)) name)
-  (let ((ext (file-name-extension name))
-        (base (file-name-sans-extension name)))
+(defun ng2--counterpart-name (file)
+  "Return the file name of FILE's counterpart, or FILE if there is no counterpart."
+  (when (not (ng2--is-component file)) file)
+  (let ((ext (file-name-extension file))
+        (base (file-name-sans-extension file)))
     (if (equal ext "ts")
         (concat base ".html")
       (concat base ".ts"))))
 
-(defun ng2--sans-type (name)
-  "Return the file name, minus its extension an type. Ex. kek.component.ts -> kek"
-  (file-name-sans-extension (file-name-sans-extension name)))
+(defun ng2--sans-type (file)
+  "Return the FILE's basename, sans its extensions."
+  (file-name-sans-extension (file-name-sans-extension file)))
 
-(defun ng2--is-component (name)
-  (equal (file-name-extension (file-name-sans-extension name)) "component"))
+(defun ng2--is-component (file)
+  "Return whether FILE is a component file."
+  (equal (file-name-extension (file-name-sans-extension file)) "component"))
 
 (defun ng2-open-counterpart ()
-  "Opens the counterpart file to this one. If it's a component, open the corresponding template, and vice versa"
+  "Opens the corresponding template or component file to this one."
   (interactive)
   (find-file (ng2--counterpart-name (buffer-file-name))))
 
