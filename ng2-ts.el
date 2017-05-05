@@ -32,29 +32,44 @@
 
 ;;; Code:
 
+(require 'typescript-mode)
+
 (defconst ng2-ts-decorator-keywords
   '("@Component"
     "@Directive"
     "@Pipe"
     "@NgModule"))
 
+(defconst ng2-ts-type-keywords
+  '("void" "string" "number" "boolean" "any"))
+
 (defconst ng2-ts-interp-regex
   "${.*?}")
 
 (defconst ng2-ts-var-regex
-  "[^?/.] \\(\\w+\\) *[=:]")
+  "\\(\\w+\\) *:")
 
-(defconst ng2-ts-fn-regex
-  "\\(\\w+\\)\(.*\).*{")
+(defconst ng2-ts-type-regex
+  "[{,:&] *\\([A-Z]\\w*\\)")
 
 (defconst ng2-ts-class-regex
   "class \\(\\w+\\)")
+
+(defconst ng2-ts-interface-regex
+  "implements \\(\\w+\\)")
 
 (defconst ng2-ts-lambda-regex
   "\\(\\w+\\) *\\(=>\\)")
 
 (defconst ng2-ts-generic-regex
-  "<\\(\\w+\\)\\(\\[\\]\\)?>")
+  "<\\(\\w+\\)\\(\\[\\]\\)?.*?>")
+
+(defconst ng2-ts-fn-regex
+  (concat
+   "\\(\\w+\\)" ; Function name
+   "\\(<.*?>\\)?" ; Generic argument
+   "([^)]*) *:? *\\w* *{" ; Argument list, return type, and opening brace
+   ))
 
 (defun ng2-ts-goto-fn (fn-name)
   "Places the point on the function called FN-NAME."
@@ -70,12 +85,15 @@
 (defvar ng2-ts-font-lock-keywords
   `((,ng2-ts-interp-regex . (0 font-lock-constant-face t))
     (,ng2-ts-var-regex (1 font-lock-variable-name-face))
+    (,ng2-ts-type-regex (1 font-lock-type-face))
     (,ng2-ts-class-regex (1 font-lock-type-face))
-    (,ng2-ts-fn-regex (1 font-lock-function-name-face))
+    (,ng2-ts-interface-regex (1 font-lock-type-face))
+    (,ng2-ts-fn-regex (1 font-lock-function-name-face nil t))
     (,ng2-ts-generic-regex (1 font-lock-type-face))
     (,ng2-ts-lambda-regex (1 font-lock-variable-name-face))
     (,ng2-ts-lambda-regex (2 font-lock-function-name-face))
-    (,(regexp-opt ng2-ts-decorator-keywords) . font-lock-builtin-face)))
+    (,(regexp-opt ng2-ts-decorator-keywords) . font-lock-builtin-face)
+    (,(regexp-opt ng2-ts-type-keywords 'words). font-lock-type-face)))
 
 ;;;###autoload
 (define-derived-mode ng2-ts-mode

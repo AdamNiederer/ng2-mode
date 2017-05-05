@@ -32,7 +32,6 @@
 
 ;;; Code:
 
-(require 'typescript-mode)
 (require 'ng2-ts)
 (require 'ng2-html)
 

@@ -33,19 +33,19 @@
 ;;; Code:
 
 (defconst ng2-html-var-regex
-  "#\\(\\w+\\)")
+  "\\(#\\)\\(\\w+\\)")
 
 (defconst ng2-html-interp-regex
   "{{.*?}}")
 
 (defconst ng2-html-directive-regex
-  "\*\\(.*?\\)[\"= ]")
+  "\\(\*\\)\\(.*?\\)[\"= ]")
 
 (defconst ng2-html-binding-regex
-  "\\(\\[.*?\\]\\)=\\(\".*?\"\\)")
+  "\\(\\[(?\\)\\(.*?\\)\\()?\\]\\)=\\(\".*?\"\\)")
 
 (defconst ng2-html-event-regex
-  "\\((.*?)\\)=\".*?\"")
+  "\\((\\)\\(.*?\\)\\()\\)=\".*?\"")
 
 (defconst ng2-html-pipe-regex
   "{{.*?\\(|\\) *\\(.*?\\) *}}")
@@ -58,12 +58,18 @@
     (ng2-ts-goto-fn fn-name)))
 
 (defvar ng2-html-font-lock-keywords
-  `((,ng2-html-var-regex (1 font-lock-variable-name-face))
+  `((,ng2-html-var-regex (1 font-lock-builtin-face))
+    (,ng2-html-var-regex (2 font-lock-variable-name-face))
     (,ng2-html-interp-regex . (0 font-lock-variable-name-face t))
-    (,ng2-html-directive-regex . (1 font-lock-keyword-face t))
-    (,ng2-html-binding-regex . (1 font-lock-type-face t))
-    (,ng2-html-event-regex . (1 font-lock-type-face t))
-    (,ng2-html-pipe-regex . (1 font-lock-keyword-face t))
+    (,ng2-html-directive-regex . (1 font-lock-builtin-face t))
+    (,ng2-html-directive-regex . (2 font-lock-keyword-face t))
+    (,ng2-html-binding-regex . (1 font-lock-builtin-face t))
+    (,ng2-html-binding-regex . (2 font-lock-builtin-face t))
+    (,ng2-html-binding-regex . (3 font-lock-builtin-face t))
+    (,ng2-html-event-regex . (1 font-lock-builtin-face t))
+    (,ng2-html-event-regex . (2 font-lock-builtin-face t))
+    (,ng2-html-event-regex . (3 font-lock-builtin-face t))
+    (,ng2-html-pipe-regex . (1 font-lock-function-name-face t))
     (,ng2-html-pipe-regex . (2 font-lock-function-name-face t))))
 
 (defvar ng2-html-map
