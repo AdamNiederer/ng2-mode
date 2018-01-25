@@ -66,9 +66,11 @@
 
 (defconst ng2-ts-fn-regex
   (concat
-   "\\(\\w+\\)" ; Function name
-   "\\(<.*?>\\)?" ; Generic argument
-   "([^)]*) *:? *\\w* *{" ; Argument list, return type, and opening brace
+    "\\([a-zA-Z_0-9]+\\)" ; Function name
+    "\\(<.*?>\\)?" ; Generic argument
+    "([^)]*) *:? *" ; Argument list
+    "\\([a-zA-Z_0-9]*\\)"; Return type
+    "\\(<.*?>\\)? *{" ; Generic argument, and opening brace
    ))
 
 (defun ng2-ts-goto-fn (fn-name)
