@@ -78,7 +78,7 @@
   (goto-char (point-min))
   (search-forward-regexp (format "\\(\\%s\\)\(.*\).*{" fn-name)))
 
-(defvar ng2-ts-map
+(defvar ng2-ts-mode-map
   (let ((map (make-keymap)))
     (define-key map (kbd "C-c c") 'ng2-open-counterpart)
     map)
@@ -101,7 +101,6 @@
 (define-derived-mode ng2-ts-mode
   typescript-mode "ng2-ts"
   "Major mode for Angular 2 TypeScript"
-  (use-local-map ng2-ts-map)
   (font-lock-add-keywords nil ng2-ts-font-lock-keywords))
 
 ;;;###autoload
