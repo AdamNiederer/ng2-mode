@@ -80,7 +80,7 @@
 
 (defvar ng2-ts-mode-map
   (let ((map (make-keymap)))
-    (define-key map (kbd "C-c c") 'ng2-open-counterpart)
+    (define-key map (kbd "C-c C-c") 'ng2-open-counterpart)
     map)
   "Keymap for ng2-ts-mode.")
 
