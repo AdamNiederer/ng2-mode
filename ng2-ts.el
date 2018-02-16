@@ -38,7 +38,8 @@
   '("@Component"
     "@Directive"
     "@Pipe"
-    "@NgModule"))
+    "@NgModule"
+    "@Injectable"))
 
 (defconst ng2-ts-type-keywords
   '("void" "string" "number" "boolean" "any"))
