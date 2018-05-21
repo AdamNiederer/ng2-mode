@@ -112,6 +112,10 @@
 (add-to-list 'auto-mode-alist '("\\.pipe.ts\\'" . ng2-ts-mode))
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.directive.ts\\'" . ng2-ts-mode))
+;;;###autoload
+(add-to-list 'auto-mode-alist '("\\.guard.ts\\'" . ng2-ts-mode))
+;;;###autoload
+(add-to-list 'auto-mode-alist '("\\.module.ts\\'" . ng2-ts-mode))
 
 (provide 'ng2-ts)
 ;;; ng2-ts.el ends here
