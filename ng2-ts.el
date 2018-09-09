@@ -67,11 +67,11 @@
 
 (defconst ng2-ts-fn-regex
   (concat
-    "\\([a-zA-Z_0-9]+\\)" ; Function name
-    "\\(<.*?>\\)?" ; Generic argument
-    "([^)]*) *:? *" ; Argument list
-    "\\([a-zA-Z_0-9]*\\)"; Return type
-    "\\(<.*?>\\)? *{" ; Generic argument, and opening brace
+   "\\([a-zA-Z_0-9]+\\)" ; Function name
+   "\\(<.*?>\\)?" ; Generic argument
+   "([^)]*)\s-*:?\s-*" ; Argument list
+   "\\([a-zA-Z_0-9]*\\)"; Return type
+   "\\(<.*?>\\)?\s-*{" ; Generic argument, and opening brace
    ))
 
 (defun ng2-ts-goto-fn (fn-name)
@@ -81,7 +81,7 @@
 
 (defvar ng2-ts-mode-map
   (let ((map (make-keymap)))
-    (define-key map (kbd "C-c C-c") 'ng2-open-counterpart)
+    (define-key map (kbd "C-c C-o") 'ng2-open-counterpart)
     map)
   "Keymap for ng2-ts-mode.")
 

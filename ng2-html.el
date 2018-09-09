@@ -36,19 +36,28 @@
   "\\(#\\)\\(\\w+\\)")
 
 (defconst ng2-html-interp-regex
-  "{{.*?}}")
+  (concat
+   "\\({{\\)" ; Opening brackets
+   "\\s-*[^{].+?" ; The expression being interpolated
+   "\\(}}\\)" ; Closing brackets
+   ))
+
+;; Colors pipes within ng2-html-interp-regex
+;; TODO: Prevent false positives like "~x | 2"
+(defconst ng2-html-pipe-regex
+  (concat
+   "|\\s-*" ; Pipe symbol
+   "\\([A-Za-z0-9]+\\)" ; Name of the pipe function
+   ))
 
 (defconst ng2-html-directive-regex
-  "\\(\*\\)\\(.*?\\)[\"= ]")
+  "\\([*]\\)\\(.*?\\)[\"= ]")
 
 (defconst ng2-html-binding-regex
   "\\(\\[(?\\)\\(.*?\\)\\()?\\]\\)=\\(\".*?\"\\)")
 
 (defconst ng2-html-event-regex
   "\\((\\)\\(.*?\\)\\()\\)=\".*?\"")
-
-(defconst ng2-html-pipe-regex
-  "{{.*?\\(|\\) *\\(.*?\\) *}}")
 
 (defun ng2-html-goto-binding ()
   "Opens the corresponding component TypeScript file, then places the cursor at the function corresponding to the binding."
@@ -60,7 +69,9 @@
 (defvar ng2-html-font-lock-keywords
   `((,ng2-html-var-regex (1 font-lock-builtin-face))
     (,ng2-html-var-regex (2 font-lock-variable-name-face))
-    (,ng2-html-interp-regex . (0 font-lock-variable-name-face t))
+    (,ng2-html-interp-regex . (1 font-lock-variable-name-face))
+    (,ng2-html-interp-regex . (2 font-lock-variable-name-face))
+    (,ng2-html-pipe-regex . (1 font-lock-function-name-face))
     (,ng2-html-directive-regex . (1 font-lock-builtin-face t))
     (,ng2-html-directive-regex . (2 font-lock-keyword-face t))
     (,ng2-html-binding-regex . (1 font-lock-builtin-face t))
@@ -68,14 +79,12 @@
     (,ng2-html-binding-regex . (3 font-lock-builtin-face t))
     (,ng2-html-event-regex . (1 font-lock-builtin-face t))
     (,ng2-html-event-regex . (2 font-lock-builtin-face t))
-    (,ng2-html-event-regex . (3 font-lock-builtin-face t))
-    (,ng2-html-pipe-regex . (1 font-lock-function-name-face t))
-    (,ng2-html-pipe-regex . (2 font-lock-function-name-face t))))
+    (,ng2-html-event-regex . (3 font-lock-builtin-face t))))
 
 (defvar ng2-html-map
   (let ((map (make-keymap)))
-    (define-key map (kbd "C-c b") 'ng2-html-goto-binding)
-    (define-key map (kbd "C-c c") 'ng2-open-counterpart)
+    (define-key map (kbd "C-c C-.") 'ng2-html-goto-binding)
+    (define-key map (kbd "C-c C-o") 'ng2-open-counterpart)
     map)
   "Keymap for ng2-html-mode.")
 
