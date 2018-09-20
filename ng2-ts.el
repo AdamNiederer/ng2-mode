@@ -42,7 +42,7 @@
     "@Injectable"))
 
 (defconst ng2-ts-type-keywords
-  '("void" "string" "number" "boolean" "any"))
+  '("void" "string" "number" "boolean" "object" "any"))
 
 (defconst ng2-ts-interp-regex
   "${.*?}")
