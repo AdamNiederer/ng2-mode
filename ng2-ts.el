@@ -65,6 +65,9 @@
 (defconst ng2-ts-generic-regex
   "<\\(\\w+\\)\\(\\[\\]\\)?.*?>")
 
+(defconst ng2-ts-method-regex
+  "\\([a-zA-Z_0-9]+\\)[.]\\([a-zA-Z_0-9]+\\)([\0-\377[:nonascii:]]*")
+
 (defconst ng2-ts-fn-regex
   (concat
    "\\([a-zA-Z_0-9]+\\)" ; Function name
@@ -91,6 +94,7 @@
     (,ng2-ts-type-regex (1 font-lock-type-face))
     (,ng2-ts-class-regex (1 font-lock-type-face))
     (,ng2-ts-interface-regex (1 font-lock-type-face))
+    (,ng2-ts-method-regex (2 font-lock-function-name-face))
     (,ng2-ts-fn-regex (1 font-lock-function-name-face nil t))
     (,ng2-ts-generic-regex (1 font-lock-type-face))
     (,ng2-ts-lambda-regex (1 font-lock-variable-name-face))
