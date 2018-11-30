@@ -66,7 +66,9 @@
   "<\\(\\w+\\)\\(\\[\\]\\)?.*?>")
 
 (defconst ng2-ts-method-regex
-  "\\([a-zA-Z_0-9]+\\)[.]\\([a-zA-Z_0-9]+\\)([\0-\377[:nonascii:]]*")
+  (concat "\\([[]?[a-zA-Z,_0-9]+[]]?\\)"
+          "[.]\\([a-zA-Z_0-9]+\\)"
+          "([\0-\377[:nonascii:]]*")"))
 
 (defconst ng2-ts-fn-regex
   (concat
