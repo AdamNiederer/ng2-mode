@@ -34,12 +34,8 @@
 
 (require 'typescript-mode)
 
-(defconst ng2-ts-decorator-keywords
-  '("@Component"
-    "@Directive"
-    "@Pipe"
-    "@NgModule"
-    "@Injectable"))
+(defconst ng2-ts-decorator-regex
+  "\\(@[A-Za-z0-9_]+\\)")
 
 (defconst ng2-ts-type-keywords
   '("void" "string" "number" "boolean" "object" "any"))
@@ -101,7 +97,7 @@
     (,ng2-ts-generic-regex (1 font-lock-type-face))
     (,ng2-ts-lambda-regex (1 font-lock-variable-name-face))
     (,ng2-ts-lambda-regex (2 font-lock-function-name-face))
-    (,(regexp-opt ng2-ts-decorator-keywords) . font-lock-builtin-face)
+    (,ng2-ts-decorator-regex (0 font-lock-builtin-face))
     (,(regexp-opt ng2-ts-type-keywords 'words). font-lock-type-face)))
 
 ;;;###autoload
