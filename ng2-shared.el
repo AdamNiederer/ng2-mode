@@ -4,9 +4,9 @@
 
 ;; Author: Adam Niederer <adam.niederer@gmail.com>
 ;; URL: http://github.com/AdamNiederer/ng2-mode
-;; Version: 0.1
+;; Version: 0.2
 ;; Keywords: typescript angular angular2
-;; Package-Requires: ((typescript-mode "0.1"))
+;; Package-Requires: ()
 
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
