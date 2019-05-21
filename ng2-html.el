@@ -1,6 +1,6 @@
 ;;; ng2-html.el --- Major mode for editing Angular 2 templates
 
-;; Copyright 2016 Adam Niederer
+;; Copyright 2016-2019 Adam Niederer
 
 ;; Author: Adam Niederer <adam.niederer@gmail.com>
 ;; URL: http://github.com/AdamNiederer/ng2-mode
@@ -32,6 +32,8 @@
 
 ;;; Code:
 
+(require 'ng2-shared)
+
 (defconst ng2-html-var-regex
   "\\(#\\)\\(\\w+\\)")
 
@@ -39,16 +41,14 @@
   (concat
    "\\({{\\)" ; Opening brackets
    "\\s-*[^{].+?" ; The expression being interpolated
-   "\\(}}\\)" ; Closing brackets
-   ))
+   "\\(}}\\)")) ; Closing brackets
 
 ;; Colors pipes within ng2-html-interp-regex
 ;; TODO: Prevent false positives like "~x | 2"
 (defconst ng2-html-pipe-regex
   (concat
    "|\\s-*" ; Pipe symbol
-   "\\([A-Za-z0-9]+\\)" ; Name of the pipe function
-   ))
+   "\\([A-Za-z0-9]+\\)")) ; Name of the pipe function
 
 (defconst ng2-html-directive-regex
   "\\([*]\\)\\(.*?\\)[\"= ]")
@@ -62,9 +62,9 @@
 (defun ng2-html-goto-binding ()
   "Opens the corresponding component TypeScript file, then places the cursor at the function corresponding to the binding."
   (interactive)
-  (let ((fn-name (word-at-point)))
+  (let ((name (symbol-at-point)))
     (ng2-open-counterpart)
-    (ng2-ts-goto-fn fn-name)))
+    (ng2-ts-goto-name name)))
 
 (defvar ng2-html-font-lock-keywords
   `((,ng2-html-var-regex (1 font-lock-builtin-face))

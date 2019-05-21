@@ -1,6 +1,6 @@
 ;;; ng2-ts.el --- Major mode for editing Angular 2 TypeScript
 
-;; Copyright 2016 Adam Niederer
+;; Copyright 2016-2019 Adam Niederer
 
 ;; Author: Adam Niederer <adam.niederer@gmail.com>
 ;; URL: http://github.com/AdamNiederer/ng2-mode
@@ -33,77 +33,181 @@
 ;;; Code:
 
 (require 'typescript-mode)
+(require 'ng2-shared)
 
-(defconst ng2-ts-decorator-regex
-  "\\(@[A-Za-z0-9_]+\\)")
+(defconst ng2-ts-name-re
+  (concat "\\_<[A-Za-z_$]\\(?:\\s_\\|\\sw\\)*\\_>"))
 
-(defconst ng2-ts-type-keywords
-  '("void" "string" "number" "boolean" "object" "any"))
+(defconst ng2-ts-type-name-re
+  (concat "\\_<[A-Z_$]\\(?:\\s_\\|\\sw\\)*\\_>"))
 
-(defconst ng2-ts-interp-regex
-  "${.*?}")
+(defconst ng2-ts-decorator-re
+  (concat "\\(@" ng2-ts-name-re "\\)"))
 
-(defconst ng2-ts-var-regex
-  "\\(\\w+\\) *:")
+(defconst ng2-ts-keyword-re
+  (ng2--re-opt "is" "infer"))
 
-(defconst ng2-ts-type-regex
-  "[{,:&] *\\([A-Z]\\w*\\)")
+(defconst ng2-ts-type-keyword-re
+  (ng2--re-opt "void" "string" "number" "boolean" "object" "any" "unknown" "never"))
 
-(defconst ng2-ts-class-regex
-  "class \\(\\w+\\)")
+(defconst ng2-ts-interp-re
+  "\\(${\\).*?\\(}\\)")
 
-(defconst ng2-ts-interface-regex
-  "implements \\(\\w+\\)")
+(defconst ng2-ts-type-annotated-re
+  (concat "\\(" ng2-ts-name-re "\\)\\s-*[?!]?\\s-*:"))
 
-(defconst ng2-ts-lambda-regex
-  "\\(\\w+\\) *\\(=>\\)")
-
-(defconst ng2-ts-generic-regex
-  "<\\(\\w+\\)\\(\\[\\]\\)?.*?>")
-
-(defconst ng2-ts-method-regex
-  (concat "\\([[]?[a-zA-Z,_0-9]+[]]?\\)"
-          "[.]\\([a-zA-Z_0-9]+\\)"
-          "([\0-\377[:nonascii:]]*"))
-
-(defconst ng2-ts-fn-regex
+(defconst ng2-ts-type-re
   (concat
-   "\\([a-zA-Z_0-9]+\\)" ; Function name
-   "\\(<.*?>\\)?" ; Generic argument
-   "([^)]*)\s-*:?\s-*" ; Argument list
-   "\\([a-zA-Z_0-9]*\\)"; Return type
-   "\\(<.*?>\\)?\s-*{" ; Generic argument, and opening brace
-   ))
+   "\\(?:\\(?:" ng2-ts-type-keyword-re "\\)\\|"
+   "\\(?:\\(" ng2-ts-type-name-re "\\)" ; Type name
+   "\\(?:\\[\\(" ng2-ts-type-name-re "\\)\\]\\)?\\)\\)")) ; Type subscript
 
-(defun ng2-ts-goto-fn (fn-name)
-  "Places the point on the function called FN-NAME."
+(defconst ng2-ts-type-annotation-re
+  (concat ":\\s-*" ng2-ts-type-re "\\s-*"))
+
+(defconst ng2-ts-var-like-search-re
+  (concat
+   "\\(?:public\\|protected\\|private\\|readonly\\)\\s-+\\("
+   "%s" ;; The name of the variable
+   "\\)\\s-*[?!]?\\s-*\\(?:[=:].*\\|;?\\)$")) ; Ensure functions don't get picked up
+
+(defconst ng2-ts-var-like-re
+  (format ng2-ts-var-like-search-re ng2-ts-name-re))
+
+(defconst ng2-ts-type-arithmetic-re
+  (concat "[()]?\\s-*[|&]\\s-*[()]?\\s-*" ng2-ts-type-re "\\s-*"))
+
+(defconst ng2-ts-typedef-re
+  (concat "type\\s-\\(" ng2-ts-type-name-re "\\)\\s-*=\\s-*\\(" ng2-ts-type-re "\\)"))
+
+(defconst ng2-ts-postfix-type-like-re
+  (concat
+   "\\(" ng2-ts-type-re "\\)\\s-+"
+   "\\(?:" (ng2--re-opt "implements" "extends")
+   "\\|\\(?:in\\|extends\\)\\s-+keyof"
+   "\\)"))
+
+(defconst ng2-ts-prefix-type-like-re
+  (concat
+   (ng2--re-opt "is" "as" "keyof" "instanceof" "infer" "extends" "implements" "class" "interface")
+   "\\s-+\\(" ng2-ts-type-re "\\)"))
+
+(defconst ng2-ts-import-default-type-re
+  (concat "\\_<import\\s-+\\(" ng2-ts-type-name-re "\\)\\s-+\\(?:as\\s-+\\*\\s-+\\)?from\\_>"))
+
+(defconst ng2-ts-type-condition-re
+  (concat
+   ng2-ts-type-re
+   "\\s-+extends\\s-+"
+   ng2-ts-type-re
+   "\\s-*\\?\\s-*"
+   ng2-ts-type-re
+   "\\s-*:\\s-*"
+   ng2-ts-type-re))
+
+(defconst ng2-ts-lambda-re
+  (concat "\\(" ng2-ts-name-re "\\)}?]?)?\\s-*\\(=>\\)"))
+
+(defconst ng2-ts-generic-re
+  (concat "<" ng2-ts-type-re ".*?>"))
+
+(defconst ng2-ts-method-re
+  (concat "\\.\\(" ng2-ts-name-re "\\)("))
+
+(defconst ng2-ts-fn-search-re
+  (concat
+   "\\(%s\\)" ; Function name
+   "\\(?:<.*?>\\)?" ; Generic argument
+   "([^)]*)\\s-*" ; Argument list
+   "\\(?::\\s-*" ng2-ts-type-re "\\)?"; Return type
+   "\\(?:<.*?>\\)?\\s-*{"))
+
+(defconst ng2-ts-fn-re
+  (format ng2-ts-fn-search-re ng2-ts-name-re))
+
+(defun ng2-ts--inside-import-block-p (pos)
+  "Whether POS is inside a Typescript import block."
+  (save-match-data
+    (and
+     (save-excursion
+       (goto-char pos)
+       (search-backward "{" nil t)
+       (forward-symbol -1)
+       (looking-at-p "import"))
+     (save-excursion
+       (goto-char pos)
+       (search-forward "}" nil t)
+       (forward-symbol 1)
+       (forward-symbol -1)
+       (looking-at-p "from")))))
+
+(defun ng2-ts--end-of-import (pos)
+  "Return the position at the next end of an import statement after POS."
+  (save-match-data
+    (save-excursion
+      (goto-char pos)
+      (re-search-forward "}?\\s-*from" nil t)
+      (end-of-line)
+      (point))))
+
+(defun ng2-ts--highlight-import-block-fn (bound)
+  "Match a type inside an import block between point and BOUND."
+  (message "%s %s" (point) bound)
+  (if (ng2-ts--inside-import-block-p (point))
+      (or (re-search-forward ng2-ts-type-name-re (min bound (ng2-ts--end-of-import (point))) 1)
+          (and (save-match-data (search-forward "{" bound 1))
+               (ng2-ts--highlight-import-block-fn bound)))
+    (and (save-match-data (search-forward "{" bound 1))
+         (ng2-ts--highlight-import-block-fn bound))))
+
+(defun ng2-ts-goto-name (name)
+  "Places the point on the variable or function called NAME."
   (goto-char (point-min))
-  (search-forward-regexp (format "\\(\\%s\\)\(.*\).*{" fn-name)))
+  (unless (search-forward-regexp (format ng2-ts-fn-search-re name) nil t)
+    (unless (search-forward-regexp (format ng2-ts-var-like-search-re name) nil t)
+      (message "ng2-ts-mode: Couldn't find %s" name))))
 
 (defvar ng2-ts-mode-map
   (let ((map (make-keymap)))
-    (define-key map (kbd "C-c C-o") 'ng2-open-counterpart)
+    (define-key map (kbd "C-c C-o") #'ng2-open-counterpart)
     map)
   "Keymap for ng2-ts-mode.")
 
 (defvar ng2-ts-font-lock-keywords
-  `((,ng2-ts-interp-regex . (0 font-lock-constant-face t))
-    (,ng2-ts-var-regex (1 font-lock-variable-name-face))
-    (,ng2-ts-type-regex (1 font-lock-type-face))
-    (,ng2-ts-class-regex (1 font-lock-type-face))
-    (,ng2-ts-interface-regex (1 font-lock-type-face))
-    (,ng2-ts-method-regex (2 font-lock-function-name-face))
-    (,ng2-ts-fn-regex (1 font-lock-function-name-face nil t))
-    (,ng2-ts-generic-regex (1 font-lock-type-face))
-    (,ng2-ts-lambda-regex (1 font-lock-variable-name-face))
-    (,ng2-ts-lambda-regex (2 font-lock-function-name-face))
-    (,ng2-ts-decorator-regex (0 font-lock-builtin-face))
-    (,(regexp-opt ng2-ts-type-keywords 'words). font-lock-type-face)))
+  `((,ng2-ts-interp-re . (1 font-lock-variable-name-face t))
+    (,ng2-ts-interp-re . (2 font-lock-variable-name-face t))
+    (,ng2-ts-type-annotated-re (1 font-lock-variable-name-face))
+    (,ng2-ts-type-annotation-re (1 font-lock-type-face nil t))
+    (,ng2-ts-type-annotation-re (2 font-lock-type-face nil t))
+    (,ng2-ts-type-annotation-re (2 font-lock-type-face nil t))
+    (,ng2-ts-type-arithmetic-re (1 font-lock-type-face nil t))
+    (,ng2-ts-type-arithmetic-re (2 font-lock-type-face nil t))
+    (,ng2-ts-prefix-type-like-re (1 font-lock-type-face nil t))
+    (,ng2-ts-prefix-type-like-re (2 font-lock-type-face nil t))
+    (,ng2-ts-postfix-type-like-re (1 font-lock-type-face nil t))
+    (,ng2-ts-postfix-type-like-re (2 font-lock-type-face nil t))
+    (,ng2-ts-type-condition-re (5 font-lock-type-face nil t))
+    (,ng2-ts-type-condition-re (6 font-lock-type-face nil t))
+    (,ng2-ts-type-condition-re (7 font-lock-type-face nil t))
+    (,ng2-ts-type-condition-re (8 font-lock-type-face nil t))
+    (,ng2-ts-import-default-type-re (1 font-lock-type-face))
+    (,ng2-ts-var-like-re (1 font-lock-variable-name-face))
+    (,ng2-ts-method-re (1 font-lock-function-name-face))
+    (,ng2-ts-fn-re (1 font-lock-function-name-face))
+    (,ng2-ts-generic-re (1 font-lock-type-face nil t))
+    (,ng2-ts-generic-re (2 font-lock-type-face nil t))
+    (,ng2-ts-lambda-re (1 font-lock-variable-name-face))
+    (,ng2-ts-lambda-re (2 font-lock-function-name-face))
+    (,ng2-ts-decorator-re (0 font-lock-builtin-face))
+    (,ng2-ts-type-keyword-re (0 font-lock-type-face))
+    (,ng2-ts-keyword-re (0 font-lock-keyword-face))
+    (ng2-ts--highlight-import-block-fn (0 font-lock-type-face))))
 
 ;;;###autoload
 (define-derived-mode ng2-ts-mode
   typescript-mode "ng2-ts"
   "Major mode for Angular 2 TypeScript"
+  (modify-syntax-entry ?$ "_" ng2-ts-mode-syntax-table)
   (font-lock-add-keywords nil ng2-ts-font-lock-keywords))
 
 ;;;###autoload

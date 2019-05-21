@@ -1,11 +1,11 @@
-;;; ng2-mode.el --- Major modes for editing Angular 2
+;;; ng2-shared.el --- Major modes for editing Angular 2
 
 ;; Copyright 2016-2019 Adam Niederer
 
 ;; Author: Adam Niederer <adam.niederer@gmail.com>
 ;; URL: http://github.com/AdamNiederer/ng2-mode
 ;; Version: 0.1
-;; Keywords: typescript angular angular2 template
+;; Keywords: typescript angular angular2
 ;; Package-Requires: ((typescript-mode "0.1"))
 
 ;; This program is free software: you can redistribute it and/or modify
@@ -32,27 +32,26 @@
 
 ;;; Code:
 
-(require 'ng2-ts)
-(require 'ng2-html)
+(defun ng2--re-opt (&rest strs)
+  "Optimize, group, and place symbol-ends around a regex matching STRS."
+  (concat "\\_<\\(?:" (regexp-opt strs) "\\)\\_>"))
 
-(defgroup ng2 nil
-  "Major mode for AngularJS 2 files"
-  :prefix "ng2-"
-  :group 'languages
-  :link '(url-link :tag "Github" "https://github.com/AdamNiederer/ng2-mode")
-  :link '(emacs-commentary-link :tag "Commentary" "ng2-mode"))
+(defun ng2--counterpart-name (file)
+  "Return the file name of FILE's counterpart, or FILE if there is no counterpart."
+  (when (not (ng2--is-component file)) file)
+  (let ((ext (file-name-extension file))
+        (base (file-name-sans-extension file)))
+    (if (equal ext "ts")
+        (concat base ".html")
+      (concat base ".ts"))))
 
-;;;###autoload
-(defun ng2-mode ()
-  "Activates the appropriate Angular 2-related mode for the buffer."
+(defun ng2--is-component (file)
+  "Return whether FILE is a component file."
+  (equal (file-name-extension (file-name-sans-extension file)) "component"))
+
+(defun ng2-open-counterpart ()
+  "Opens the corresponding template or component file to this one."
   (interactive)
-  (if (equal buffer-file-name nil)
-    (message "This doesn't appear to be an Angular2 component or service.")
-    (let ((file-ext (file-name-extension (buffer-file-name))))
-      (cond
-       ((equal file-ext "html") (ng2-html-mode))
-       ((equal file-ext "ts") (ng2-ts-mode))
-       (t (message "This doesn't appear to be an Angular2 component or service."))))))
+  (find-file (ng2--counterpart-name (buffer-file-name))))
 
-(provide 'ng2-mode)
-;;; ng2-mode.el ends here
+(provide 'ng2-shared)
