@@ -152,7 +152,6 @@
 
 (defun ng2-ts--highlight-import-block-fn (bound)
   "Match a type inside an import block between point and BOUND."
-  (message "%s %s" (point) bound)
   (if (ng2-ts--inside-import-block-p (point))
       (or (re-search-forward ng2-ts-type-name-re (min bound (ng2-ts--end-of-import (point))) 1)
           (and (save-match-data (search-forward "{" bound 1))
