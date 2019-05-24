@@ -187,7 +187,7 @@
 
 (defun ng2-ts--skip-whitespace ()
   "Move POINT past all contiguous whitespace ahead of it."
-  (save-match-data (while (looking-at "\\s-") (forward-char))))
+  (save-match-data (while (looking-at "\\s-\\|\n") (forward-char))))
 
 (defun ng2-ts--highlight-lambda-args-fn (bound)
   "Match a type inside an import block between point and BOUND."
