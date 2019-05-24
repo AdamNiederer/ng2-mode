@@ -105,7 +105,7 @@
    "\\s-*:"))
 
 (defconst ng2-ts-lambda-re
-  (concat "\\(" ng2-ts-name-re "\\)}?]?)?\\s-*\\(=>\\)"))
+  (concat "=>"))
 
 (defconst ng2-ts-generic-re
   (concat "<" ng2-ts-type-re ".*?>"))
@@ -155,12 +155,53 @@
 
 (defun ng2-ts--highlight-import-block-fn (bound)
   "Match a type inside an import block between point and BOUND."
-  (if (ng2-ts--inside-import-block-p (point))
-      (or (re-search-forward ng2-ts-type-name-re (min bound (ng2-ts--end-of-import (point))) 1)
-          (and (save-match-data (search-forward "{" bound 1))
-               (ng2-ts--highlight-import-block-fn bound)))
-    (and (save-match-data (search-forward "{" bound 1))
-         (ng2-ts--highlight-import-block-fn bound))))
+  (or (when (ng2-ts--inside-import-block-p (point))
+        (re-search-forward ng2-ts-type-name-re (min bound (ng2-ts--end-of-import (point))) 1))
+      (and (save-match-data (search-forward "{" bound 1))
+           (ng2-ts--highlight-import-block-fn bound))))
+
+(defun ng2-ts--inside-lambda-args-p (pos)
+  "Return whether POS is inside the arguments to an arrow function."
+  (save-match-data
+    (<= (save-excursion
+          (goto-char pos)
+          (search-forward "=>" nil t)
+          (backward-sexp)
+          (point))
+        pos
+        (save-excursion
+          (goto-char pos)
+          (search-forward "=>" nil t)
+          (backward-sexp)
+          (forward-sexp)
+          (1- (point))))))
+
+(defun ng2-ts--end-of-lambda-args (pos)
+  "Return the first end of an arrow function's arguments after POS."
+  (save-match-data
+    (save-excursion
+      (goto-char pos)
+      (search-forward "=>" nil t)
+      (point))))
+
+(defun ng2-ts--skip-whitespace ()
+  "Move POINT past all contiguous whitespace ahead of it."
+  (save-match-data (while (looking-at "\\s-") (forward-char))))
+
+(defun ng2-ts--highlight-lambda-args-fn (bound)
+  "Match a type inside an import block between point and BOUND."
+  (or (when (ng2-ts--inside-lambda-args-p (point))
+        (re-search-forward (concat "\\(" ng2-ts-name-re "\\)"
+                                   "\\(?:\\s-*:\\s-*\\(" ng2-ts-name-re "\\)\\)?"
+                                   "\\(?:\\s-*=\\s-*.*?\\(?:[,})]\\|\\]\\)\\)?")
+                           (min bound (ng2-ts--end-of-lambda-args (point))) 1))
+      (and (ignore-errors
+             ;; Skip forward if we wind up in the space between the args and the =>
+             (ng2-ts--skip-whitespace)
+             (forward-char 2)
+             (prog1 (save-match-data (search-forward "=>" bound 1))
+               (backward-sexp)))
+           (ng2-ts--highlight-lambda-args-fn bound))))
 
 (defun ng2-ts-goto-name (name)
   "Places the point on the variable or function called NAME."
@@ -198,12 +239,13 @@
     (,ng2-ts-generic-re (2 font-lock-type-face nil t))
     (,ng2-ts-inner-generic-re (1 font-lock-type-face nil t))
     (,ng2-ts-inner-generic-re (2 font-lock-type-face nil t))
-    (,ng2-ts-lambda-re (1 font-lock-variable-name-face))
-    (,ng2-ts-lambda-re (2 font-lock-function-name-face))
+    (,ng2-ts-lambda-re (0 font-lock-function-name-face))
     (,ng2-ts-decorator-re (0 font-lock-builtin-face))
     (,ng2-ts-type-keyword-re (0 font-lock-type-face))
     (,ng2-ts-keyword-re (0 font-lock-keyword-face))
-    (ng2-ts--highlight-import-block-fn (0 font-lock-type-face))))
+    (ng2-ts--highlight-import-block-fn (0 font-lock-type-face))
+    (ng2-ts--highlight-lambda-args-fn (1 font-lock-variable-name-face))
+    (ng2-ts--highlight-lambda-args-fn (2 font-lock-variable-name-face nil t))))
 
 ;;;###autoload
 (define-derived-mode ng2-ts-mode
