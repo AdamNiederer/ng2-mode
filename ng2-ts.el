@@ -98,13 +98,11 @@
 
 (defconst ng2-ts-type-condition-re
   (concat
-   ng2-ts-type-re
-   "\\s-+extends\\s-+"
-   ng2-ts-type-re
+   "extends\\s-+"
+   ".+?"
    "\\s-*\\?\\s-*"
    ng2-ts-type-re
-   "\\s-*:\\s-*"
-   ng2-ts-type-re))
+   "\\s-*:"))
 
 (defconst ng2-ts-lambda-re
   (concat "\\(" ng2-ts-name-re "\\)}?]?)?\\s-*\\(=>\\)"))
@@ -178,7 +176,9 @@
   "Keymap for ng2-ts-mode.")
 
 (defvar ng2-ts-font-lock-keywords
-  `((,ng2-ts-interp-re . (1 font-lock-variable-name-face t))
+  `((,ng2-ts-type-condition-re (1 font-lock-type-face nil t))
+    (,ng2-ts-type-condition-re (2 font-lock-type-face nil t))
+    (,ng2-ts-interp-re . (1 font-lock-variable-name-face t))
     (,ng2-ts-interp-re . (2 font-lock-variable-name-face t))
     (,ng2-ts-type-annotated-re (1 font-lock-variable-name-face))
     (,ng2-ts-type-annotation-re (1 font-lock-type-face nil t))
@@ -190,10 +190,6 @@
     (,ng2-ts-prefix-type-like-re (2 font-lock-type-face nil t))
     (,ng2-ts-postfix-type-like-re (1 font-lock-type-face nil t))
     (,ng2-ts-postfix-type-like-re (2 font-lock-type-face nil t))
-    (,ng2-ts-type-condition-re (5 font-lock-type-face nil t))
-    (,ng2-ts-type-condition-re (6 font-lock-type-face nil t))
-    (,ng2-ts-type-condition-re (7 font-lock-type-face nil t))
-    (,ng2-ts-type-condition-re (8 font-lock-type-face nil t))
     (,ng2-ts-import-default-type-re (1 font-lock-type-face))
     (,ng2-ts-var-like-re (1 font-lock-variable-name-face))
     (,ng2-ts-method-re (1 font-lock-function-name-face))
