@@ -112,6 +112,10 @@
 (defconst ng2-ts-generic-re
   (concat "<" ng2-ts-type-re ".*?>"))
 
+;; -generic-re doesn't match this because it's contained in the .*?
+(defconst ng2-ts-inner-generic-re
+  (concat "<" ng2-ts-type-re ">"))
+
 (defconst ng2-ts-method-re
   (concat "\\.\\(" ng2-ts-name-re "\\)("))
 
@@ -196,6 +200,8 @@
     (,ng2-ts-fn-re (1 font-lock-function-name-face))
     (,ng2-ts-generic-re (1 font-lock-type-face nil t))
     (,ng2-ts-generic-re (2 font-lock-type-face nil t))
+    (,ng2-ts-inner-generic-re (1 font-lock-type-face nil t))
+    (,ng2-ts-inner-generic-re (2 font-lock-type-face nil t))
     (,ng2-ts-lambda-re (1 font-lock-variable-name-face))
     (,ng2-ts-lambda-re (2 font-lock-function-name-face))
     (,ng2-ts-decorator-re (0 font-lock-builtin-face))
