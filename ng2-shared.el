@@ -4,7 +4,7 @@
 
 ;; Author: Adam Niederer <adam.niederer@gmail.com>
 ;; URL: http://github.com/AdamNiederer/ng2-mode
-;; Version: 0.2.2
+;; Version: 0.2.3
 ;; Keywords: typescript angular angular2
 ;; Package-Requires: ()
 
