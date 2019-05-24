@@ -59,7 +59,8 @@
 (defconst ng2-ts-type-re
   (concat
    "\\(?:\\(?:" ng2-ts-type-keyword-re "\\)\\|"
-   "\\(?:\\(" ng2-ts-type-name-re "\\)" ; Type name
+   "\\(?:\\(?:" ng2-ts-type-name-re "\\|" ng2-ts-name-re "\\.\\)*"
+   "\\(" ng2-ts-type-name-re "\\)" ; Type name
    "\\(?:\\[\\(" ng2-ts-type-name-re "\\)\\]\\)?\\)\\)")) ; Type subscript
 
 (defconst ng2-ts-type-annotation-re
