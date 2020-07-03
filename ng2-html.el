@@ -81,7 +81,7 @@
     (,ng2-html-event-regex . (2 font-lock-builtin-face t))
     (,ng2-html-event-regex . (3 font-lock-builtin-face t))))
 
-(defvar ng2-html-map
+(defvar ng2-html-mode-map
   (let ((map (make-keymap)))
     (define-key map (kbd "C-c C-.") 'ng2-html-goto-binding)
     (define-key map (kbd "C-c C-o") 'ng2-open-counterpart)
@@ -92,7 +92,6 @@
 (define-derived-mode ng2-html-mode
   html-mode "ng2-html"
   "Major mode for Angular 2 templates"
-  (use-local-map ng2-html-map)
   (font-lock-add-keywords nil ng2-html-font-lock-keywords))
 
 ;;;###autoload
