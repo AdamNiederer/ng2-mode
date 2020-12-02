@@ -197,6 +197,8 @@
                                    "\\(?:\\s-*=\\s-*.*?\\(?:[,})]\\|\\]\\)\\)?")
                            (min bound (ng2-ts--end-of-lambda-args (point))) 1))
       (and (ignore-errors
+             ;; Fix endless loop on generic return types
+             (save-match-data (while (looking-at ">") (forward-char)))
              ;; Skip forward if we wind up in the space between the args and the =>
              (ng2-ts--skip-whitespace)
              (forward-char 2)
